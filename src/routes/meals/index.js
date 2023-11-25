@@ -5,6 +5,10 @@ const meal = require('../../models/Meals');
 const user = require('../../models/Users')
 
 router.get('/meals', findAll);
+router.get('/users', async(req, res) => {
+    const result = await user.find()
+    res.send(result)
+});
 
 router.get('/meals/:id', async (req, res) => {
     const id = req.params.id;
