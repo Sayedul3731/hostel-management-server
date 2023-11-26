@@ -6,7 +6,11 @@ const upcomingMeal = require('../../models/UpcomingMeals')
 const user = require('../../models/Users')
 
 router.get('/meals', findAll);
-
+router.get('/meals/:email', async(req, res) =>{
+    console.log('email', req.params.email);
+    const result = await meal.find({adminEmail: req.params.email})
+    res.send(result)
+})
 router.get('/upcomingMeals', async(req, res) => {
     const result = await upcomingMeal.find();
     res.send(result)
@@ -14,7 +18,6 @@ router.get('/upcomingMeals', async(req, res) => {
 
 router.post('/meals', async (req, res) => {
     const newMeal = new meal(req.body);
-    console.log("new meal", newMeal);
     const result = await newMeal.save();
     res.send(result)
 })
@@ -29,7 +32,6 @@ router.get('/users', async (req, res) => {
     res.send(result)
 });
 router.get('/users/:text', async (req, res) => {
-    console.log(req.params.text);
     const result = await user.findOne({
         $or: [
             { name: req.params.text },
@@ -44,6 +46,7 @@ router.get('/meals/:id', async (req, res) => {
     const result = await meal.find({ _id: id })
     res.send(result)
 })
+
 router.delete('/meals/:id', async (req, res) => {
     const id = req.params.id;
     const result = await meal.deleteOne({ _id: id })
@@ -68,12 +71,9 @@ router.patch('/meals/:id', async (req, res) => {
             time:updateMeal.time
         }
     })
-    console.log('update result', result);
     res.send(result)
 })
 router.get('/users/admin/:email', async (req, res) => {
-    console.log('admin email', req.params.email);
-
     const adminUser = await user.findOne({ email: req.params.email });
     let admin = false;
     if (adminUser) {
