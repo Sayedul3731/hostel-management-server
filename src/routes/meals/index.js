@@ -19,16 +19,18 @@ router.post('/upcomingMeals', async (req, res) => {
     res.send(result)
 })
 
-router.get('/users', async(req, res) => {
+router.get('/users', async (req, res) => {
     const result = await user.find()
     res.send(result)
 });
-router.get('/users/:text', async(req, res) => {
+router.get('/users/:text', async (req, res) => {
     console.log(req.params.text);
-    const result = await user.findOne({ $or: [
-        { name: req.params.text },
-        { email: req.params.text },
-      ]} )
+    const result = await user.findOne({
+        $or: [
+            { name: req.params.text },
+            { email: req.params.text },
+        ]
+    })
     res.send([result])
 });
 
@@ -37,15 +39,37 @@ router.get('/meals/:id', async (req, res) => {
     const result = await meal.find({ _id: id })
     res.send(result)
 })
+router.patch('/meals/:id', async (req, res) => {
+    const id = req.params.id;
+    const updateMeal = req.body;
+    const result = await meal.updateOne({ _id: id }, {
+        $set : {
+            title: updateMeal.title,
+            category:updateMeal.category,
+            price:updateMeal.price,
+            image:updateMeal.image,
+            like:updateMeal.like,
+            rating:updateMeal.rating,
+            reviews:updateMeal.reviews,
+            adminEmail:updateMeal.adminEmail,
+            adminName:updateMeal.adminName,
+            Ingredients:updateMeal.Ingredients,
+            Description:updateMeal.Description,
+            time:updateMeal.time
+        }
+    })
+    console.log('update result', result);
+    res.send(result)
+})
 router.get('/users/admin/:email', async (req, res) => {
     console.log('admin email', req.params.email);
 
-    const adminUser = await user.findOne({ email: req.params.email});
+    const adminUser = await user.findOne({ email: req.params.email });
     let admin = false;
-    if(adminUser){
-        admin= adminUser?.role === 'Admin'
+    if (adminUser) {
+        admin = adminUser?.role === 'Admin'
     }
-    res.send({admin})
+    res.send({ admin })
 })
 
 router.post('/users', async (req, res) => {
@@ -53,7 +77,7 @@ router.post('/users', async (req, res) => {
     await newUser.save()
 })
 router.patch('/users/admin/:id', async (req, res) => {
-    const result = await user.updateOne({_id: req.params.id}, {
+    const result = await user.updateOne({ _id: req.params.id }, {
         $set: {
             role: 'Admin'
         }
