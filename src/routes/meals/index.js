@@ -7,6 +7,11 @@ const user = require('../../models/Users')
 
 router.get('/meals', findAll);
 
+router.get('/upcomingMeals', async(req, res) => {
+    const result = await upcomingMeal.find();
+    res.send(result)
+})
+
 router.post('/meals', async (req, res) => {
     const newMeal = new meal(req.body);
     console.log("new meal", newMeal);
