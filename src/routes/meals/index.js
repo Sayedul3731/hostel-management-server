@@ -2,6 +2,7 @@ var express = require('express')
 var router = express.Router();
 const findAll = require('../../api/meals/controllers/findAll');
 const meal = require('../../models/Meals');
+const upcomingMeal = require('../../models/UpcomingMeals')
 const user = require('../../models/Users')
 
 router.get('/meals', findAll);
@@ -10,6 +11,11 @@ router.post('/meals', async (req, res) => {
     const newMeal = new meal(req.body);
     console.log("new meal", newMeal);
     const result = await newMeal.save();
+    res.send(result)
+})
+router.post('/upcomingMeals', async (req, res) => {
+    const newUpcomingMeal = new upcomingMeal(req.body);
+    const result = await newUpcomingMeal.save();
     res.send(result)
 })
 
