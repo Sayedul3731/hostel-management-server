@@ -10,6 +10,14 @@ router.get('/users', async(req, res) => {
     const result = await user.find()
     res.send(result)
 });
+router.get('/users/:text', async(req, res) => {
+    console.log(req.params.text);
+    const result = await user.findOne({ $or: [
+        { name: req.params.text },
+        { email: req.params.text },
+      ]} )
+    res.send(result)
+});
 
 router.get('/meals/:id', async (req, res) => {
     const id = req.params.id;
