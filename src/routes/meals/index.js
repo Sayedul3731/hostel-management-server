@@ -39,6 +39,11 @@ router.get('/meals/:id', async (req, res) => {
     const result = await meal.find({ _id: id })
     res.send(result)
 })
+router.delete('/meals/:id', async (req, res) => {
+    const id = req.params.id;
+    const result = await meal.deleteOne({ _id: id })
+    res.send(result)
+})
 router.patch('/meals/:id', async (req, res) => {
     const id = req.params.id;
     const updateMeal = req.body;
