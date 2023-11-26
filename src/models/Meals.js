@@ -5,17 +5,44 @@ const MealsSchema = new Schema({
         type: String,
         required: true
     },
+    "time" :{
+        type: Date,
+        default: Date.now
+    },
+    "reviews" :{
+        type: Number
+    },
+    "rating": {
+        type: Number
+    },
     "price": {
         type: Number,
         required: true
+    },
+    "like": {
+        type: Number
     },
     "image": {
         type: String,
         required: true
     },
-    "rating": {
-        type: Number,
+    "category": {
+        type: String,
         required: true
+    },
+    "adminName": {
+        type: String,
+        required: true
+    },
+    "adminEmail": {
+        type: String,
+        required: true
+    },
+    "Description": {
+        type: String
+    },
+    "Ingredients": {
+        type: String
     },
 })
 

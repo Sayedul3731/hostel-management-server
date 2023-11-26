@@ -6,6 +6,13 @@ const user = require('../../models/Users')
 
 router.get('/meals', findAll);
 
+router.post('/meals', async (req, res) => {
+    const newMeal = new meal(req.body);
+    console.log("new meal", newMeal);
+    const result = await newMeal.save();
+    res.send(result)
+})
+
 router.get('/users', async(req, res) => {
     const result = await user.find()
     res.send(result)
@@ -16,7 +23,7 @@ router.get('/users/:text', async(req, res) => {
         { name: req.params.text },
         { email: req.params.text },
       ]} )
-    res.send(result)
+    res.send([result])
 });
 
 router.get('/meals/:id', async (req, res) => {
