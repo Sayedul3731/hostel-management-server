@@ -59,10 +59,8 @@ router.get('/users/:text', async (req, res) => {
 
 // package data get 
 router.get('/packages/:type', async (req, res) => {
-    // console.log('package type', req.params.type);
     const result = await package.findOne({title: req.params.type})
-    console.log('packages', result);
-    res.send([result])
+    res.send(result)
 });
 
 router.get('/meals/:id', async (req, res) => {
@@ -114,6 +112,17 @@ router.patch('/users/admin/:id', async (req, res) => {
     const result = await user.updateOne({ _id: req.params.id }, {
         $set: {
             role: 'Admin'
+        }
+    })
+    res.send(result)
+})
+// user badge update after purchasing a package 
+router.patch('/users/:email', async (req, res) => {
+    const badgeName = req.body;
+    console.log('badge name', badgeName);
+    const result = await user.updateOne({ email: req.params.email }, {
+        $set: {
+            Badge: badgeName.badge
         }
     })
     res.send(result)
