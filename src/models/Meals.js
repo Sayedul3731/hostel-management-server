@@ -6,8 +6,7 @@ const MealsSchema = new Schema({
         required: true
     },
     "time" :{
-        type: Date,
-        default: Date.now
+        type: Date
     },
     "reviews" :{
         type: Number

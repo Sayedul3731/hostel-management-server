@@ -9,7 +9,6 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 
 router.get('/meals', findAll);
 router.get('/meals/:email', async (req, res) => {
-    console.log('email', req.params.email);
     const result = await meal.find({ adminEmail: req.params.email })
     res.send(result)
 })
@@ -17,7 +16,6 @@ router.get('/meals/:email', async (req, res) => {
 router.post('/create-payment-intent', async (req, res) => {
     const { price } = req.body;
     const amount = parseInt(price * 100);
-    console.log(amount, 'inside the payment intent');
     const paymentIntent = await stripe.paymentIntents.create({
         amount: amount,
         currency: 'usd',
@@ -63,9 +61,9 @@ router.get('/packages/:type', async (req, res) => {
     res.send(result)
 });
 
-router.get('/meals/:id', async (req, res) => {
+router.get('/meals/meal/:id', async (req, res) => {
     const id = req.params.id;
-    const result = await meal.find({ _id: id })
+    const result = await meal.findOne({ _id: id })
     res.send(result)
 })
 
@@ -91,7 +89,8 @@ router.patch('/meals/:id', async (req, res) => {
             Ingredients: updateMeal.Ingredients,
             Description: updateMeal.Description,
             time: updateMeal.time
-        }
+        },
+        $inc: { like: 1 }
     })
     res.send(result)
 })
@@ -119,7 +118,6 @@ router.patch('/users/admin/:id', async (req, res) => {
 // user badge update after purchasing a package 
 router.patch('/users/:email', async (req, res) => {
     const badgeName = req.body;
-    console.log('badge name', badgeName);
     const result = await user.updateOne({ email: req.params.email }, {
         $set: {
             Badge: badgeName.badge
