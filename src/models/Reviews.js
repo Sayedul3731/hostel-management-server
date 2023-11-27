@@ -10,6 +10,9 @@ const ReviewsSchema = new Schema({
     },
     "userEmail": {
         type: String
+    },
+    "mealId": {
+        type: String
     }
 })
 

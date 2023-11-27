@@ -120,7 +120,8 @@ router.patch('/meals/:id', async (req, res) => {
             Description: updateMeal.Description,
             time: updateMeal.time
         },
-        $inc: { like: 1 }
+        $inc: { like: 1 },
+        $inc: { reviews: 1}
     })
     res.send(result)
 })
