@@ -42,7 +42,7 @@ const MealsSchema = new Schema({
     },
     "Ingredients": {
         type: String
-    },
+    }
 })
 
 const meal = model("meal", MealsSchema)

@@ -17,6 +17,18 @@ router.get('/meals/:email', async (req, res) => {
     const result = await meal.find({ adminEmail: req.params.email })
     res.send(result)
 })
+// reviews get here 
+router.get('/reviews/:id', async (req, res) => {
+    console.log('reviews id', req.params.id);
+    const result = await review.find({
+        $or: [
+            { mealId: req.params.id },
+            {userEmail: req.params.id}
+        ]
+    })
+    console.log('reviews result', result);
+    res.send(result)
+})
 
 // payment intent 
 router.post('/create-payment-intent', async (req, res) => {
@@ -35,6 +47,11 @@ router.post('/create-payment-intent', async (req, res) => {
 // all upcoming meals get here 
 router.get('/upcomingMeals', async (req, res) => {
     const result = await upcomingMeal.find();
+    res.send(result)
+})
+// all reviews meals get here 
+router.get('/reviews', async (req, res) => {
+    const result = await review.find();
     res.send(result)
 })
 // upcoming meal post here 
@@ -66,6 +83,24 @@ router.post('/requestedMeals', async (req, res) => {
     console.log('requested meal', result);
     res.send(result)
 })
+// requested meal get here by specific user 
+router.get('/requestedMeals/:email', async(req, res) =>{
+    const result = await requestedMeal.find({userEmail: req.params.email})
+    res.send(result)
+})
+//all requested meals get here 
+router.get('/requestedMeals', async(req, res) =>{
+    const result = await requestedMeal.find()
+    res.send(result)
+})
+// requested data  update here 
+router.patch('/requestedMeals/:id', async (req, res) => {
+    const id = req.params.id;
+    const updateInfo = req.body;
+    const result = await requestedMeal.updateOne({ _id: id },updateInfo);
+    console.log('update status', result);
+    res.send(result);
+});
 
 // all users find/get here 
 router.get('/users', async (req, res) => {
@@ -86,7 +121,7 @@ router.get('/users/:text', async (req, res) => {
 
 // package data get 
 router.get('/packages/:type', async (req, res) => {
-    const result = await package.findOne({title: req.params.type})
+    const result = await package.findOne({ title: req.params.type })
     res.send(result)
 });
 // a meal get here by id 
@@ -101,11 +136,25 @@ router.delete('/meals/:id', async (req, res) => {
     const result = await meal.deleteOne({ _id: id })
     res.send(result)
 })
+// reviews data delete here 
+router.delete('/reviews/:id', async (req, res) => {
+    const id = req.params.id;
+    const result = await review.deleteOne({ _id: id })
+    res.send(result)
+})
+// requested meal delete 
+router.delete('/requestedMeals/:id', async (req, res) => {
+    const id = req.params.id;
+    const result = await requestedMeal.deleteOne({ _id: id })
+    res.send(result)
+})
 // a meal update here by id 
 router.patch('/meals/:id', async (req, res) => {
     const id = req.params.id;
     const updateMeal = req.body;
-    const result = await meal.updateOne({ _id: id }, {
+    console.log('id and update meal', id, updateMeal);
+
+    const updateDoc = {
         $set: {
             title: updateMeal.title,
             category: updateMeal.category,
@@ -118,13 +167,42 @@ router.patch('/meals/:id', async (req, res) => {
             adminName: updateMeal.adminName,
             Ingredients: updateMeal.Ingredients,
             Description: updateMeal.Description,
-            time: updateMeal.time
+            time: updateMeal.time,
         },
-        $inc: { like: 1 },
-        $inc: { reviews: 1}
-    })
-    res.send(result)
-})
+    };
+    if (id && updateMeal.lk === 1) {
+        updateDoc.$inc = { like: 1 };
+    }
+    if (id && updateMeal.rev === 1) {
+        updateDoc.$inc = { ...updateDoc.$inc, reviews: 1 };
+    }
+
+    const result = await meal.updateOne({ _id: id }, updateDoc);
+    console.log('update meal', result);
+    res.send(result);
+});
+
+// a upcomingMeal update here 
+router.patch('/upcomingMeals/:id', async (req, res) => {
+    const id = req.params.id;
+    const result = await upcomingMeal.updateOne({ _id: id }, {
+        $inc: {
+            like: 1
+        }
+    });
+    console.log('update upcoming meal', result);
+    res.send(result);
+});
+// reviews data  update here 
+router.patch('/reviews/:id', async (req, res) => {
+    const id = req.params.id;
+    const updateInfo = req.body;
+    console.log('new update info', updateInfo, id);
+    const result = await review.updateOne({ _id: id },updateInfo);
+    console.log('update reviews meal', result);
+    res.send(result);
+});
+
 
 // identify or get a admin here by email 
 router.get('/users/admin/:email', async (req, res) => {
@@ -143,8 +221,8 @@ router.post('/users', async (req, res) => {
 })
 // get a user by using user email 
 router.get('/users/:email', async (req, res) => {
-   const result = await user.findOne({email: req.params.email})
-   res.send(result)
+    const result = await user.findOne({ email: req.params.email })
+    res.send(result)
 })
 // make admin here 
 router.patch('/users/admin/:id', async (req, res) => {

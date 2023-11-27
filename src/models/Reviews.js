@@ -1,7 +1,7 @@
 const { Schema, model } = require("mongoose");
 
 const ReviewsSchema = new Schema({
-    "reviews": {
+    "review": {
         type: String,
         required: true
     },
@@ -9,10 +9,23 @@ const ReviewsSchema = new Schema({
         type: String
     },
     "userEmail": {
-        type: String
+        type: String,
+        required: true
     },
     "mealId": {
         type: String
+    },
+    "title": {
+        type: String,
+        required: true
+    },
+    "like": {
+        type: Number,
+        required: true
+    },
+    "reviews": {
+        type: String,
+        required: true
     }
 })
 
