@@ -3,6 +3,7 @@ var router = express.Router();
 const findAll = require('../../api/meals/controllers/findAll');
 const meal = require('../../models/Meals');
 const upcomingMeal = require('../../models/UpcomingMeals')
+const requestedMeal = require('../../models/RequestedMeals')
 const user = require('../../models/Users');
 const package = require('../../models/packages')
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
@@ -38,6 +39,14 @@ router.post('/meals', async (req, res) => {
 router.post('/upcomingMeals', async (req, res) => {
     const newUpcomingMeal = new upcomingMeal(req.body);
     const result = await newUpcomingMeal.save();
+    res.send(result)
+})
+
+// requestedMeal post here 
+router.post('/requestedMeals', async (req, res) => {
+    const newRequestedMeal = new requestedMeal(req.body);
+    const result = await newRequestedMeal.save();
+    console.log('requested meal', result);
     res.send(result)
 })
 
@@ -106,6 +115,12 @@ router.get('/users/admin/:email', async (req, res) => {
 router.post('/users', async (req, res) => {
     const newUser = new user(req.body);
     await newUser.save()
+})
+router.get('/users/:email', async (req, res) => {
+    console.log('user email', req.params.email);
+   const result = await user.findOne({email: req.params.email})
+   console.log('user', result);
+   res.send(result)
 })
 router.patch('/users/admin/:id', async (req, res) => {
     const result = await user.updateOne({ _id: req.params.id }, {
