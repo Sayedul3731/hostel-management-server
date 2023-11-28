@@ -7,8 +7,31 @@ const requestedMeal = require('../../models/RequestedMeals')
 const user = require('../../models/Users');
 const package = require('../../models/packages');
 const review = require('../../models/Reviews')
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const jwt = require('jsonwebtoken');
 
+// jwt create here 
+router.post('/jwt', async(req, res) => {
+    const user = req.body;
+    console.log('user in jwt', user);
+    const token = jwt.sign(user, process.env.ACCESS_SECRET_TOKEN, {expiresIn: '1h'})
+    res.send({token})
+})
+// token verify here 
+const verifyToken = (req, res, next) => {
+    console.log('inside veriFy token', req.headers);
+    if(!req.headers.authorization){
+        return res.status(401).send({message: 'unauthorized access'})
+    }
+    const token = req.headers.authorization.split(' ')[1];
+    jwt.verify(token, process.env.ACCESS_SECRET_TOKEN, (err, decoded) => {
+        if(err){
+            return res.status(401).send({message: 'unauthorized access'})
+        }
+        req.decoded = decoded;
+        next()
+    })
+}
 // all meals get here 
 router.get('/meals', findAll);
 
