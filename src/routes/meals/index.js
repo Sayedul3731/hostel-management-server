@@ -147,7 +147,7 @@ router.patch('/requestedMeals/:id', async (req, res) => {
 });
 
 // all users find/get here 
-router.get('/users', async (req, res) => {
+router.get('/users',verifyToken, async (req, res) => {
     const page = parseInt(req.query.page)
     const size = parseInt(req.query.size)
     const result = await user.find()
@@ -161,7 +161,17 @@ router.get('/users/:text', async (req, res) => {
     const result = await user.findOne({
         $or: [
             { name: req.params.text },
-            { email: req.params.text },
+            { email: req.params.text }
+        ]
+    })
+    res.send([result])
+});
+// a user get by user name or email 
+router.get('/requestedMeals/:text', async (req, res) => {
+    const result = await requestedMeal.findOne({
+        $or: [
+            { userName: req.params.text },
+            { userEmail: req.params.text }
         ]
     })
     res.send([result])

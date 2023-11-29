@@ -9,7 +9,7 @@ const mealsRoutes = require('./routes/meals')
 applyMiddleware(app)
 app.use(mealsRoutes);
 
-app.get("/health", (req, res) => {
+app.get("/", (req, res) => {
     res.send('Hostel Management system is running')
 })
 
@@ -25,10 +25,11 @@ app.use((err, req,res, next) => {
     })
 })
 
-const main = async() => {
-    await connectDB();
-    app.listen(port, () => {
-        console.log(`Hostel management system is running port on: ${port}`);
-    })
-}
-main()
+// const main = async() => {
+//     await connectDB();
+//     app.listen(port, () => {
+//         console.log(`Hostel management system is running port on: ${port}`);
+//     })
+// }
+// main()
+module.exports = app
