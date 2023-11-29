@@ -1,6 +1,5 @@
 var express = require('express')
 var router = express.Router();
-const findAll = require('../../api/meals/controllers/findAll');
 const meal = require('../../models/Meals');
 const upcomingMeal = require('../../models/UpcomingMeals')
 const requestedMeal = require('../../models/RequestedMeals')
@@ -13,13 +12,11 @@ const jwt = require('jsonwebtoken');
 // jwt create here 
 router.post('/jwt', async(req, res) => {
     const user = req.body;
-    console.log('user in jwt', user);
     const token = jwt.sign(user, process.env.ACCESS_SECRET_TOKEN, {expiresIn: '1h'})
     res.send({token})
 })
 // token verify here 
 const verifyToken = (req, res, next) => {
-    console.log('inside veriFy token', req.headers);
     if(!req.headers.authorization){
         return res.status(401).send({message: 'unauthorized access'})
     }
@@ -33,7 +30,14 @@ const verifyToken = (req, res, next) => {
     })
 }
 // all meals get here 
-router.get('/meals', findAll);
+router.get('/meals', async(req,res) => {
+    const page = parseInt(req.query.page)
+    const size = parseInt(req.query.size)
+    const result = await meal.find()
+    .skip(page * size)
+    .limit(size)
+    res.send(result)
+});
 
 // specific user meal get here by query eamil 
 router.get('/meals/:email', async (req, res) => {
@@ -42,14 +46,16 @@ router.get('/meals/:email', async (req, res) => {
 })
 // reviews get here 
 router.get('/reviews/:id', async (req, res) => {
-    console.log('reviews id', req.params.id);
+    const page = parseInt(req.query.page)
+    const size = parseInt(req.query.size)
     const result = await review.find({
         $or: [
             { mealId: req.params.id },
             {userEmail: req.params.id}
         ]
     })
-    console.log('reviews result', result);
+    .skip(page * size)
+    .limit(size)
     res.send(result)
 })
 
@@ -69,12 +75,20 @@ router.post('/create-payment-intent', async (req, res) => {
 
 // all upcoming meals get here 
 router.get('/upcomingMeals', async (req, res) => {
-    const result = await upcomingMeal.find();
+    const page = parseInt(req.query.page)
+    const size = parseInt(req.query.size)
+    const result = await upcomingMeal.find()
+    .skip(page * size)
+    .limit(size)
     res.send(result)
 })
 // all reviews meals get here 
 router.get('/reviews', async (req, res) => {
-    const result = await review.find();
+    const page = parseInt(req.query.page)
+    const size = parseInt(req.query.size)
+    const result = await review.find()
+    .skip(page * size)
+    .limit(size)
     res.send(result)
 })
 // upcoming meal post here 
@@ -87,14 +101,15 @@ router.post('/upcomingMeals', async (req, res) => {
 router.post('/reviews', async (req, res) => {
     const newReview = new review(req.body);
     const result = await newReview.save();
-    console.log('reviews', result);
     res.send(result)
 })
 
 // new meal post here 
 router.post('/meals', async (req, res) => {
+    console.log('new meal', req.body);
     const newMeal = new meal(req.body);
     const result = await newMeal.save();
+    console.log('new meal add result', result);
     res.send(result)
 })
 
@@ -103,17 +118,24 @@ router.post('/meals', async (req, res) => {
 router.post('/requestedMeals', async (req, res) => {
     const newRequestedMeal = new requestedMeal(req.body);
     const result = await newRequestedMeal.save();
-    console.log('requested meal', result);
     res.send(result)
 })
 // requested meal get here by specific user 
 router.get('/requestedMeals/:email', async(req, res) =>{
+    const page = parseInt(req.query.page)
+    const size = parseInt(req.query.size)
     const result = await requestedMeal.find({userEmail: req.params.email})
+    .skip(page * size)
+    .limit(size)
     res.send(result)
 })
 //all requested meals get here 
 router.get('/requestedMeals', async(req, res) =>{
+    const page = parseInt(req.query.page)
+    const size = parseInt(req.query.size)
     const result = await requestedMeal.find()
+    .skip(page * size)
+    .limit(size)
     res.send(result)
 })
 // requested data  update here 
@@ -121,13 +143,16 @@ router.patch('/requestedMeals/:id', async (req, res) => {
     const id = req.params.id;
     const updateInfo = req.body;
     const result = await requestedMeal.updateOne({ _id: id },updateInfo);
-    console.log('update status', result);
     res.send(result);
 });
 
 // all users find/get here 
 router.get('/users', async (req, res) => {
+    const page = parseInt(req.query.page)
+    const size = parseInt(req.query.size)
     const result = await user.find()
+    .skip(page * size)
+    .limit(size)
     res.send(result)
 });
 
@@ -159,6 +184,12 @@ router.delete('/meals/:id', async (req, res) => {
     const result = await meal.deleteOne({ _id: id })
     res.send(result)
 })
+// a upcoming meal delete here by id 
+router.delete('/upcomingMeals/:id', async (req, res) => {
+    const id = req.params.id;
+    const result = await upcomingMeal.deleteOne({ _id: id })
+    res.send(result)
+})
 // reviews data delete here 
 router.delete('/reviews/:id', async (req, res) => {
     const id = req.params.id;
@@ -175,7 +206,6 @@ router.delete('/requestedMeals/:id', async (req, res) => {
 router.patch('/meals/:id', async (req, res) => {
     const id = req.params.id;
     const updateMeal = req.body;
-    console.log('id and update meal', id, updateMeal);
 
     const updateDoc = {
         $set: {
@@ -201,7 +231,6 @@ router.patch('/meals/:id', async (req, res) => {
     }
 
     const result = await meal.updateOne({ _id: id }, updateDoc);
-    console.log('update meal', result);
     res.send(result);
 });
 
@@ -213,16 +242,13 @@ router.patch('/upcomingMeals/:id', async (req, res) => {
             like: 1
         }
     });
-    console.log('update upcoming meal', result);
     res.send(result);
 });
 // reviews data  update here 
 router.patch('/reviews/:id', async (req, res) => {
     const id = req.params.id;
     const updateInfo = req.body;
-    console.log('new update info', updateInfo, id);
     const result = await review.updateOne({ _id: id },updateInfo);
-    console.log('update reviews meal', result);
     res.send(result);
 });
 

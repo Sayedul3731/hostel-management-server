@@ -9,10 +9,6 @@ const mealsRoutes = require('./routes/meals')
 applyMiddleware(app)
 app.use(mealsRoutes);
 
-
-
-
-
 app.get("/health", (req, res) => {
     res.send('Hostel Management system is running')
 })
