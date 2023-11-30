@@ -165,7 +165,7 @@ router.get('/reviews/:id', async (req, res) => {
     const result = await review.find({
         $or: [
             { mealId: req.params.id },
-            { userEmail: req.params.id }
+            { userEmail: req.params.id },
         ]
     })
         .skip(page * size)
@@ -179,6 +179,12 @@ router.get('/reviews', async (req, res) => {
     const result = await review.find()
         .skip(page * size)
         .limit(size)
+    res.send(result)
+})
+// all reviews meals get here 
+router.get('/reviews/review/:id', async (req, res) => {
+    console.log('meal id', req.params.id);
+    const result = await review.findOne({_id: req.params.id})
     res.send(result)
 })
 //all requested meals get here 
@@ -221,6 +227,14 @@ router.delete('/reviews/:id', async (req, res) => {
 router.patch('/reviews/:id', async (req, res) => {
     const id = req.params.id;
     const updateInfo = req.body;
+    const result = await review.updateOne({ _id: id }, updateInfo);
+    res.send(result);
+});
+// reviews data  update here 
+router.patch('/reviews/review/:id', async (req, res) => {
+    const id = req.params.id;
+    const updateInfo = req.body;
+    console.log('update info', updateInfo);
     const result = await review.updateOne({ _id: id }, updateInfo);
     res.send(result);
 });
