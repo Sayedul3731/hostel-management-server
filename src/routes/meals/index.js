@@ -4,6 +4,7 @@ const meal = require('../../models/Meals');
 const upcomingMeal = require('../../models/UpcomingMeals')
 const requestedMeal = require('../../models/RequestedMeals')
 const user = require('../../models/Users');
+const like = require('../../models/Likes')
 const package = require('../../models/packages');
 const review = require('../../models/Reviews')
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
@@ -173,6 +174,17 @@ router.get('/requestedMeals', async (req, res) => {
     .limit(size)
     res.send(result)
 });
+// user info save when a user like upcoming meals 
+router.post('/likes', async(req, res) => {
+    const newLike = new like(req.body);
+    const result = await newLike.save();
+    res.send(result);
+})
+// user info get who like upcoming meals 
+router.get('/likes/:id', async(req,res) => {
+    const result = await like.findOne({mealId: req.params.id})
+    res.send(result)
+})
 
 // package data get 
 router.get('/packages/:type', async (req, res) => {
