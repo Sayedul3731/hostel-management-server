@@ -10,32 +10,32 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const jwt = require('jsonwebtoken');
 
 // jwt create here 
-router.post('/jwt', async(req, res) => {
+router.post('/jwt', async (req, res) => {
     const user = req.body;
-    const token = jwt.sign(user, process.env.ACCESS_SECRET_TOKEN, {expiresIn: '1h'})
-    res.send({token})
+    const token = jwt.sign(user, process.env.ACCESS_SECRET_TOKEN, { expiresIn: '1h' })
+    res.send({ token })
 })
 // token verify here 
 const verifyToken = (req, res, next) => {
-    if(!req.headers.authorization){
-        return res.status(401).send({message: 'unauthorized access'})
+    if (!req.headers.authorization) {
+        return res.status(401).send({ message: 'unauthorized access' })
     }
     const token = req.headers.authorization.split(' ')[1];
     jwt.verify(token, process.env.ACCESS_SECRET_TOKEN, (err, decoded) => {
-        if(err){
-            return res.status(401).send({message: 'unauthorized access'})
+        if (err) {
+            return res.status(401).send({ message: 'unauthorized access' })
         }
         req.decoded = decoded;
         next()
     })
 }
 // all meals get here 
-router.get('/meals', async(req,res) => {
+router.get('/meals', async (req, res) => {
     const page = parseInt(req.query.page)
     const size = parseInt(req.query.size)
     const result = await meal.find()
-    .skip(page * size)
-    .limit(size)
+        .skip(page * size)
+        .limit(size)
     res.send(result)
 });
 
@@ -51,11 +51,11 @@ router.get('/reviews/:id', async (req, res) => {
     const result = await review.find({
         $or: [
             { mealId: req.params.id },
-            {userEmail: req.params.id}
+            { userEmail: req.params.id }
         ]
     })
-    .skip(page * size)
-    .limit(size)
+        .skip(page * size)
+        .limit(size)
     res.send(result)
 })
 
@@ -78,8 +78,8 @@ router.get('/upcomingMeals', async (req, res) => {
     const page = parseInt(req.query.page)
     const size = parseInt(req.query.size)
     const result = await upcomingMeal.find()
-    .skip(page * size)
-    .limit(size)
+        .skip(page * size)
+        .limit(size)
     res.send(result)
 })
 // all reviews meals get here 
@@ -87,8 +87,8 @@ router.get('/reviews', async (req, res) => {
     const page = parseInt(req.query.page)
     const size = parseInt(req.query.size)
     const result = await review.find()
-    .skip(page * size)
-    .limit(size)
+        .skip(page * size)
+        .limit(size)
     res.send(result)
 })
 // upcoming meal post here 
@@ -106,10 +106,8 @@ router.post('/reviews', async (req, res) => {
 
 // new meal post here 
 router.post('/meals', async (req, res) => {
-    console.log('new meal', req.body);
     const newMeal = new meal(req.body);
     const result = await newMeal.save();
-    console.log('new meal add result', result);
     res.send(result)
 })
 
@@ -121,38 +119,38 @@ router.post('/requestedMeals', async (req, res) => {
     res.send(result)
 })
 // requested meal get here by specific user 
-router.get('/requestedMeals/:email', async(req, res) =>{
+router.get('/requestedMeals/:email', async (req, res) => {
     const page = parseInt(req.query.page)
     const size = parseInt(req.query.size)
-    const result = await requestedMeal.find({userEmail: req.params.email})
-    .skip(page * size)
-    .limit(size)
+    const result = await requestedMeal.find({ userEmail: req.params.email })
+        .skip(page * size)
+        .limit(size)
     res.send(result)
 })
 //all requested meals get here 
-router.get('/requestedMeals', async(req, res) =>{
+router.get('/reviews/:email', async (req, res) => {
     const page = parseInt(req.query.page)
     const size = parseInt(req.query.size)
     const result = await requestedMeal.find()
-    .skip(page * size)
-    .limit(size)
+        .skip(page * size)
+        .limit(size)
     res.send(result)
 })
 // requested data  update here 
 router.patch('/requestedMeals/:id', async (req, res) => {
     const id = req.params.id;
     const updateInfo = req.body;
-    const result = await requestedMeal.updateOne({ _id: id },updateInfo);
+    const result = await requestedMeal.updateOne({ _id: id }, updateInfo);
     res.send(result);
 });
 
 // all users find/get here 
-router.get('/users',verifyToken, async (req, res) => {
+router.get('/users', verifyToken, async (req, res) => {
     const page = parseInt(req.query.page)
     const size = parseInt(req.query.size)
     const result = await user.find()
-    .skip(page * size)
-    .limit(size)
+        .skip(page * size)
+        .limit(size)
     res.send(result)
 });
 
@@ -167,14 +165,13 @@ router.get('/users/:text', async (req, res) => {
     res.send([result])
 });
 // a user get by user name or email 
-router.get('/requestedMeals/:text', async (req, res) => {
-    const result = await requestedMeal.findOne({
-        $or: [
-            { userName: req.params.text },
-            { userEmail: req.params.text }
-        ]
-    })
-    res.send([result])
+router.get('/requestedMeals', async (req, res) => {
+    const page = parseInt(req.query.page)
+    const size = parseInt(req.query.size)
+    const result = await requestedMeal.find()
+    .skip(page * size)
+    .limit(size)
+    res.send(result)
 });
 
 // package data get 
@@ -186,6 +183,20 @@ router.get('/packages/:type', async (req, res) => {
 router.get('/meals/meal/:id', async (req, res) => {
     const id = req.params.id;
     const result = await meal.findOne({ _id: id })
+    res.send(result)
+})
+// a meal get here by id 
+router.get('/review/:id', async (req, res) => {
+    const id = req.params.id;
+    const result = await review.findOne({ _id: id });
+    console.log('reviews meal result', result);
+    res.send(result)
+})
+// a review meal get here by id 
+router.get('/reviews/review/:id', async (req, res) => {
+    const id = req.params.id;
+    const result = await review.findOne({ _id: id })
+    console.log('my reviews result.........', result);
     res.send(result)
 })
 // a meal delete here by id 
@@ -216,6 +227,7 @@ router.delete('/requestedMeals/:id', async (req, res) => {
 router.patch('/meals/:id', async (req, res) => {
     const id = req.params.id;
     const updateMeal = req.body;
+    console.log('updateMeal body...', typeof(updateMeal.rev));
 
     const updateDoc = {
         $set: {
@@ -239,8 +251,9 @@ router.patch('/meals/:id', async (req, res) => {
     if (id && updateMeal.rev === 1) {
         updateDoc.$inc = { ...updateDoc.$inc, reviews: 1 };
     }
-
+    console.log('update document', updateDoc);
     const result = await meal.updateOne({ _id: id }, updateDoc);
+    console.log('update result', result);
     res.send(result);
 });
 
@@ -258,7 +271,7 @@ router.patch('/upcomingMeals/:id', async (req, res) => {
 router.patch('/reviews/:id', async (req, res) => {
     const id = req.params.id;
     const updateInfo = req.body;
-    const result = await review.updateOne({ _id: id },updateInfo);
+    const result = await review.updateOne({ _id: id }, updateInfo);
     res.send(result);
 });
 

@@ -26,6 +26,38 @@ const ReviewsSchema = new Schema({
     "reviews": {
         type: String,
         required: true
+    },
+    "time" :{
+        type: Date
+    },
+    "rating": {
+        type: Number
+    },
+    "price": {
+        type: Number,
+        required: true
+    },
+    "image": {
+        type: String,
+        required: true
+    },
+    "category": {
+        type: String,
+        required: true
+    },
+    "adminName": {
+        type: String,
+        required: true
+    },
+    "adminEmail": {
+        type: String,
+        required: true
+    },
+    "Description": {
+        type: String
+    },
+    "Ingredients": {
+        type: String
     }
 })
 

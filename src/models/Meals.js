@@ -42,6 +42,9 @@ const MealsSchema = new Schema({
     },
     "Ingredients": {
         type: String
+    },
+    "review": {
+        type: String
     }
 })
 
