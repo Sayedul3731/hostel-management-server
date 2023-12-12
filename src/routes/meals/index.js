@@ -1,6 +1,9 @@
 var express = require('express')
 var router = express.Router();
 const meal = require('../../models/Meals');
+const room = require('../../models/Rooms')
+const seat = require('../../models/Seats')
+const bookedSeat = require('../../models/BookedSeats')
 const upcomingMeal = require('../../models/UpcomingMeals')
 const requestedMeal = require('../../models/RequestedMeals')
 const user = require('../../models/Users');
@@ -99,6 +102,48 @@ router.get('/meals', async (req, res) => {
         .limit(size)
     res.send(result)
 });
+// all rooms get here 
+router.get('/rooms', async (req, res) => {
+    const page = parseInt(req.query.page)
+    const size = parseInt(req.query.size)
+    const result = await room.find()
+        .skip(page * size)
+        .limit(size)
+    res.send(result)
+});
+// all rooms get here 
+router.get('/seats/:id', async (req, res) => {
+    console.log('room no.', req.params.id);
+    const result = await seat.findOne({ room_number: req.params.id })
+    res.send(result)
+});
+
+// new booking info save to database here 
+router.post('/bookedSeats', async (req, res) => {
+    console.log('booking info', req.body);
+    const newBookingInfo = new bookedSeat(req.body);
+    const result = await newBookingInfo.save()
+    res.send(result)
+})
+// new booking info update 
+router.patch('/seats/:id', async (req, res) => {
+    console.log('update room and seat no...', req.params.id);
+    console.log('update room and seat no...', req.body);
+    const updateInfo = req.body;
+    const seat_no = updateInfo?.seat_no;
+
+    const result = await seat.findOneAndUpdate({ 'room_number': req.params.id, 'seats.seat_no': seat_no }, {
+        $set: {
+            'seats.$.status': 'occupied',
+            'seats.$.students_name': updateInfo?.students_name,
+            'seats.$.students_email': updateInfo?.students_email
+        }
+    },
+        { new: true }
+    )
+    console.log('result', result);
+    res.send(result)
+})
 
 // specific user meal get here by query eamil 
 router.get('/meals/:email', async (req, res) => {
@@ -127,7 +172,7 @@ router.delete('/meals/:id', async (req, res) => {
 router.patch('/meals/:id', async (req, res) => {
     const id = req.params.id;
     const updateMeal = req.body;
-    console.log('updateMeal body...', typeof(updateMeal.rev));
+    console.log('updateMeal body...', typeof (updateMeal.rev));
 
     const updateDoc = {
         $set: {
@@ -184,7 +229,7 @@ router.get('/reviews', async (req, res) => {
 // all reviews meals get here 
 router.get('/reviews/review/:id', async (req, res) => {
     console.log('meal id', req.params.id);
-    const result = await review.findOne({_id: req.params.id})
+    const result = await review.findOne({ _id: req.params.id })
     res.send(result)
 })
 //all requested meals get here 
@@ -234,7 +279,6 @@ router.patch('/reviews/:id', async (req, res) => {
 router.patch('/reviews/review/:id', async (req, res) => {
     const id = req.params.id;
     const updateInfo = req.body;
-    console.log('update info', updateInfo);
     const result = await review.updateOne({ _id: id }, updateInfo);
     res.send(result);
 });
@@ -305,8 +349,8 @@ router.get('/requestedMeals', async (req, res) => {
     const page = parseInt(req.query.page)
     const size = parseInt(req.query.size)
     const result = await requestedMeal.find()
-    .skip(page * size)
-    .limit(size)
+        .skip(page * size)
+        .limit(size)
     res.send(result)
 });
 // requested data  update here 
@@ -324,26 +368,26 @@ router.delete('/requestedMeals/:id', async (req, res) => {
 })
 
 // user info save when a user like upcoming meals 
-router.post('/likes', async(req, res) => {
+router.post('/likes', async (req, res) => {
     const newLike = new like(req.body);
     const result = await newLike.save();
     res.send(result);
 })
 // user info get who like upcoming meals 
-router.get('/likes/:id', async(req,res) => {
-    const result = await like.findOne({mealId: req.params.id})
+router.get('/likes/:id', async (req, res) => {
+    const result = await like.findOne({ mealId: req.params.id })
     res.send(result)
 })
 
 // user profile information save here
-router.post('/userProfiles', async(req, res) => {
+router.post('/userProfiles', async (req, res) => {
     const newUserProfile = new userProfile(req.body);
     const result = await newUserProfile.save();
     res.send(result);
 })
 // user profile information save here
-router.get('/userProfiles/:email', async(req, res) => {
-    const result = await userProfile.findOne({email: req.params.email})
+router.get('/userProfiles/:email', async (req, res) => {
+    const result = await userProfile.findOne({ email: req.params.email })
     res.send(result)
 })
 
