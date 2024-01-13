@@ -385,6 +385,15 @@ router.post('/userProfiles', async (req, res) => {
     const result = await newUserProfile.save();
     res.send(result);
 })
+// user profile information update here
+router.patch('/userProfiles/:email', async (req, res) => {
+    const email = req.params.email;
+    console.log('email', email);
+    const updateInfo = req.body;
+    console.log('update info', updateInfo);
+    const result = await userProfile.updateOne({email: email}, updateInfo)
+    res.send(result)
+})
 // user profile information save here
 router.get('/userProfiles/:email', async (req, res) => {
     const result = await userProfile.findOne({ email: req.params.email })
